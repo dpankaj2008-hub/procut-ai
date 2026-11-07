@@ -1,0 +1,9 @@
+{
+  "name": "ProCut AI",
+  "short_name": "ProCut AI",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090b18",
+  "theme_color": "#090b18",
+  "description": "Mobile-first video editing starter app"
+}

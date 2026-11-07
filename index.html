@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090b18">
+<title>ProCut AI</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{color-scheme:dark;--bg:#090b18;--panel:#13172a;--muted:#9ca6c5;--accent:#8b5cf6;--cyan:#22d3ee}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#22204a 0,transparent 34%),var(--bg);color:#f7f7ff;font:15px system-ui,Arial}
+header{padding:22px 18px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-size:21px;font-weight:850;letter-spacing:.3px}.logo span{color:var(--cyan)}
+.badge{font-size:11px;padding:6px 9px;border:1px solid #49416f;border-radius:30px;color:#d9ceff}
+main{max-width:900px;margin:auto;padding:0 14px 40px}.hero{padding:20px 18px;border:1px solid #292d49;border-radius:22px;background:linear-gradient(135deg,#191b36,#111729)}
+h1{font-size:26px;line-height:1.15;margin:0 0 8px}.sub{color:var(--muted);margin:0 0 17px;line-height:1.5}
+button,.filelabel{border:0;border-radius:12px;padding:12px 15px;font-weight:750;background:linear-gradient(100deg,var(--accent),#5268ef);color:white;cursor:pointer}
+button.secondary{background:#252a43;border:1px solid #3a4164}button:disabled{opacity:.45;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:15px 0}
+.card{background:var(--panel);border:1px solid #252b47;border-radius:16px;padding:14px;min-height:90px}
+.card b{display:block;margin-bottom:5px}.card small{color:var(--muted);line-height:1.4}
+.section{margin-top:18px;background:var(--panel);border:1px solid #252b47;border-radius:18px;padding:15px}
+.section h2{font-size:17px;margin:0 0 12px}
+input[type=file]{display:none}label.filelabel{display:inline-block}
+video{width:100%;max-height:360px;background:#05060b;border-radius:12px;margin-top:12px}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:10px 0}
+label.field{display:block;color:var(--muted);font-size:13px;margin:12px 0 5px}
+input[type=number],input[type=text],textarea,select{width:100%;background:#090d1d;border:1px solid #333b5e;border-radius:10px;color:white;padding:11px;font:inherit}
+textarea{min-height:76px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:12px;color:var(--muted);line-height:1.5}
+.status{color:#a5f3fc;font-size:13px;min-height:20px}
+.pill{display:inline-block;border-radius:30px;background:#242746;padding:5px 9px;color:#c7d2fe;font-size:11px;margin:3px}
+footer{text-align:center;color:#7f89a9;font-size:12px;padding:18px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr)}header{padding-top:28px}}
+</style>
+</head>
+<body>
+<header><div class="logo">PRO<span>CUT</span> AI</div><div class="badge" id="connectionBadge">● Checking connection…</div></header>
+<main>
+<section class="hero">
+<h1>Edit videos with your ideas.</h1>
+<p class="sub">Edit locally on your phone, even without internet after the app has loaded once. Cloud AI features will need internet; basic editing stays on your device.</p>
+<label class="filelabel" for="videoFile">＋ Import video</label>
+<input id="videoFile" type="file" accept="video/*">
+<div class="row"><span class="pill">Local editing</span><span class="pill">No account</span><span class="pill">Mobile-friendly</span></div>
+</section>
+<div class="grid">
+<div class="card"><b>✂️ Offline editor</b><small>Local preview, trim points, filters and browser export.</small></div>
+<div class="card"><b>✨ Creative looks</b><small>Choose cinematic, vivid, mono or warm preview filters.</small></div>
+<div class="card"><b>🔤 Text overlay</b><small>Add a title or caption to your video.</small></div>
+<div class="card"><b>📱 Social formats</b><small>Preview landscape, portrait and square layouts.</small></div>
+<div class="card"><b>🤖 Edit planner</b><small>Offline editing checklist; online AI can be added later.</small></div>
+<div class="card"><b>🎮 Gaming mode</b><small>Use a gaming montage editing recipe.</small></div>
+</div>
+<section class="section">
+<h2>1. Video preview</h2>
+<div class="note" id="empty">Choose a video to begin.</div>
+<video id="preview" controls playsinline hidden></video>
+<div class="two">
+<div><label class="field" for="start">Start time (seconds)</label><input id="start" type="number" min="0" step="0.1" value="0"></div>
+<div><label class="field" for="end">End time (seconds)</label><input id="end" type="number" min="0" step="0.1" placeholder="Video end"></div>
+</div>
+<div class="row"><button class="secondary" id="setStart" disabled>Set start to current time</button><button class="secondary" id="setEnd" disabled>Set end to current time</button></div>
+</section>
+<section class="section">
+<h2>2. Choose a look</h2>
+<label class="field" for="look">Video filter</label>
+<select id="look"><option value="none">Original</option><option value="cinema">Cinematic</option><option value="vivid">Vivid</option><option value="mono">Black & white</option><option value="warm">Warm</option></select>
+<label class="field" for="title">Text overlay</label><input id="title" type="text" maxlength="80" placeholder="Type your title or caption">
+<label class="field" for="format">Canvas format</label>
+<select id="format"><option value="original">Keep original size</option><option value="portrait">Portrait 9:16 (Shorts/Reels)</option><option value="square">Square 1:1</option><option value="landscape">Landscape 16:9</option></select>
+<p class="note">Filters and title are applied to the preview. Filters and title are applied locally. Export records the edited preview in real time; keep the video playing until export finishes. No upload is needed.</p>
+</section>
+<section class="section">
+<h2>3. AI edit planner</h2>
+<textarea id="prompt" placeholder='Example: Make a fast Free Fire montage with bold captions and a dramatic cinematic look.'></textarea>
+<div class="row"><button id="plan">Create edit plan</button><button class="secondary" id="gaming">Gaming recipe</button></div>
+<div id="planOut" class="note" aria-live="polite">Your editing plan will appear here.</div>
+</section>
+<section class="section">
+<h2>4. Export video</h2>
+<div class="row"><button id="export" disabled>Export edited preview</button><a id="download" hidden download="procut-ai-edit.webm"><button class="secondary">Download video</button></a></div>
+<div id="status" class="status" role="status"></div>
+<p class="note">Export uses your browser's MediaRecorder support and may produce WebM rather than MP4. Keep this page open while exporting. Large videos may be slow on entry-level phones.</p>
+</section>
+
+<section class="section">
+<h2>5. FFmpeg processing server</h2>
+<label class="field" for="apiBase">Processing server address</label>
+<input id="apiBase" type="text" value="http://127.0.0.1:8000" placeholder="http://your-computer-ip:8000">
+<p class="note">Run the included backend on a computer/server with FFmpeg installed. For an Android phone on the same Wi-Fi, use your computer's local network IP address instead of 127.0.0.1.</p>
+<div class="row"><button class="secondary" id="checkApi">Check server</button><button id="serverExport" disabled>Render MP4 with FFmpeg</button></div>
+<div id="serverStatus" class="status" aria-live="polite"></div>
+</section>
+</main>
+<footer>ProCut AI • Offline-first starter • Basic edits run locally; cloud AI requires internet and may have usage costs.</footer>
+<script>
+const file=document.querySelector('#videoFile'), video=document.querySelector('#preview'), empty=document.querySelector('#empty');
+const start=document.querySelector('#start'), end=document.querySelector('#end'), look=document.querySelector('#look');
+const title=document.querySelector('#title'), format=document.querySelector('#format');
+const exportBtn=document.querySelector('#export'), status=document.querySelector('#status'), download=document.querySelector('#download');
+let objectUrl=null, recorder=null, chunks=[];
+file.addEventListener('change',()=>{
+ const f=file.files?.[0]; if(!f)return;
+ if(objectUrl)URL.revokeObjectURL(objectUrl);
+ objectUrl=URL.createObjectURL(f);video.src=objectUrl;video.hidden=false;empty.hidden=true;
+ video.onloadedmetadata=()=>{start.value=0;end.value=video.duration.toFixed(1);exportBtn.disabled=false;status.textContent=`Loaded: ${f.name} • ${video.duration.toFixed(1)} seconds`;};
+});
+document.querySelector('#setStart').onclick=()=>start.value=video.currentTime.toFixed(1);
+document.querySelector('#setEnd').onclick=()=>end.value=video.currentTime.toFixed(1);
+video.addEventListener('loadedmetadata',()=>{document.querySelector('#setStart').disabled=false;document.querySelector('#setEnd').disabled=false;});
+function filterCss(){return ({none:'none',cinema:'contrast(1.22) saturate(.82) brightness(.9)',vivid:'saturate(1.55) contrast(1.08)',mono:'grayscale(1)',warm:'sepia(.28) saturate(1.25)'})[look.value];}
+function applyPreview(){video.style.filter=filterCss();video.style.objectFit=format.value==='original'?'contain':'cover';video.style.aspectRatio=format.value==='portrait'?'9 / 16':format.value==='square'?'1 / 1':format.value==='landscape'?'16 / 9':'auto';}
+[look,format].forEach(x=>x.addEventListener('change',applyPreview));
+document.querySelector('#plan').onclick=async()=>{
+ const p=document.querySelector('#prompt').value.trim();if(!p){document.querySelector('#planOut').textContent='Describe the style or changes you want first.';return;}
+ const out=document.querySelector('#planOut');
+ try { const r=await fetch(document.querySelector('#apiBase').value.replace(/\/$/,'')+'/api/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); if(!r.ok)throw new Error('Server unavailable'); const d=await r.json(); out.innerHTML='<b>Processing plan</b><pre style="white-space:pre-wrap;color:#cbd5e1">'+escapeHtml(JSON.stringify(d.plan,null,2))+'</pre>'; }
+ catch(e){out.innerHTML='<b>Suggested editing plan</b><ol><li>Keep the strongest moments and remove unwanted sections.</li><li>Apply a look matching: '+escapeHtml(p)+'.</li><li>Add readable captions and keep important action near the centre.</li><li>Choose the target aspect ratio and preview before exporting.</li></ol><span class="note">Local fallback planner. Connect the FFmpeg backend for MP4 rendering.</span>';}
+};
+document.querySelector('#checkApi').onclick=async()=>{const box=document.querySelector('#serverStatus');try{const r=await fetch(document.querySelector('#apiBase').value.replace(/\/$/,'')+'/api/health');if(!r.ok)throw new Error();const d=await r.json();box.textContent=d.ok?'Connected — FFmpeg processing server is ready.':'Server responded, but is not ready.';document.querySelector('#serverExport').disabled=!d.ffmpeg_available||!file.files?.[0];}catch(e){box.textContent='Cannot reach server. Check the address and make sure the backend is running.';document.querySelector('#serverExport').disabled=true;}};
+document.querySelector('#serverExport').onclick=async()=>{const f=file.files?.[0];if(!f){status.textContent='Import a video first.';return;}const box=document.querySelector('#serverStatus');const fd=new FormData();fd.append('video',f);fd.append('start',start.value||'0');fd.append('end',end.value||'0');fd.append('look',look.value);fd.append('aspect',format.value);fd.append('title',title.value);box.textContent='Uploading and rendering MP4… keep this page open.';try{const r=await fetch(document.querySelector('#apiBase').value.replace(/\/$/,'')+'/api/render',{method:'POST',body:fd});if(!r.ok){const e=await r.json().catch(()=>({detail:'Render failed'}));throw new Error(e.detail||'Render failed');}const blob=await r.blob();const u=URL.createObjectURL(blob);download.href=u;download.download='procut-ai-export.mp4';download.hidden=false;box.textContent='MP4 render complete. Use Download video above to save it.';}catch(e){box.textContent='Render error: '+e.message;}};
+
+document.querySelector('#gaming').onclick=()=>{document.querySelector('#prompt').value='Create a high-energy gaming montage: keep the best action moments, use a vivid look, add bold captions, and format vertically for Shorts.';document.querySelector('#plan').click();};
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function drawFrame(ctx,w,h){
+ ctx.clearRect(0,0,w,h);
+ const vw=video.videoWidth,vh=video.videoHeight;if(!vw||!vh)return;
+ let targetRatio=format.value==='portrait'?9/16:format.value==='square'?1:format.value==='landscape'?16/9:vw/vh;
+ let sw=vw,sh=vh,sx=0,sy=0;
+ if(vw/vh>targetRatio){sw=vh*targetRatio;sx=(vw-sw)/2;}else{sh=vw/targetRatio;sy=(vh-sh)/2;}
+ ctx.save();ctx.filter=filterCss();ctx.drawImage(video,sx,sy,sw,sh,0,0,w,h);ctx.restore();
+ const t=title.value.trim();if(t){ctx.font=`bold ${Math.max(24,Math.round(w*.055))}px system-ui`;ctx.textAlign='center';ctx.textBaseline='bottom';ctx.lineWidth=Math.max(3,w*.006);ctx.strokeStyle='#000';ctx.fillStyle='#fff';ctx.strokeText(t,w/2,h*.91,w*.88);ctx.fillText(t,w/2,h*.91,w*.88);}
+}
+exportBtn.onclick=async()=>{
+ if(!video.src)return;
+ if(!('MediaRecorder'in window)){status.textContent='Video export is not supported by this browser. Try a recent Chrome version.';return;}
+ const s=Math.max(0,Number(start.value)||0), e=Math.min(video.duration,Number(end.value)||video.duration);
+ if(e<=s){status.textContent='End time must be after start time.';return;}
+ const canvas=document.createElement('canvas');let ratio=format.value==='portrait'?9/16:format.value==='square'?1:format.value==='landscape'?16/9:video.videoWidth/video.videoHeight;
+ let h=720,w=Math.round(h*ratio);if(format.value==='original'){w=Math.min(video.videoWidth,1280);h=Math.round(w/video.videoWidth*video.videoHeight);}
+ canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');
+ const stream=canvas.captureStream(30);let audioCtx=null;
+ try{audioCtx=new AudioContext();const src=audioCtx.createMediaElementSource(video);const dest=audioCtx.createMediaStreamDestination();src.connect(dest);src.connect(audioCtx.destination);dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));}catch(err){}
+ const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
+ chunks=[];recorder=new MediaRecorder(stream,{mimeType:mime});recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+ recorder.onstop=()=>{const blob=new Blob(chunks,{type:'video/webm'});const url=URL.createObjectURL(blob);download.href=url;download.hidden=false;status.textContent=`Export ready (${(blob.size/1024/1024).toFixed(1)} MB).`;stream.getTracks().forEach(t=>t.stop());if(audioCtx)audioCtx.close();};
+ status.textContent='Exporting… keep this page open.';download.hidden=true;
+ video.currentTime=s;await video.play();await new Promise(r=>video.addEventListener('seeked',r,{once:true}));
+ recorder.start(250);
+ let raf;const render=()=>{drawFrame(ctx,w,h);if(video.currentTime>=e||video.ended){video.pause();cancelAnimationFrame(raf);recorder.stop();return;}raf=requestAnimationFrame(render);};
+ render();
+};
+function updateConnection(){
+ const badge=document.querySelector('#connectionBadge');
+ if(!badge)return;
+ badge.textContent=navigator.onLine?'● ONLINE • LOCAL EDITING':'● OFFLINE • LOCAL EDITING';
+ badge.style.color=navigator.onLine?'#a5f3fc':'#fde68a';
+}
+window.addEventListener('online',updateConnection);
+window.addEventListener('offline',updateConnection);
+updateConnection();
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body></html>
